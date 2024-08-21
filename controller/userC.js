@@ -56,7 +56,7 @@ exports.signUp = async(req,res)=>{
                 process,env.JWT_SECRET,
                 {expiresIn:"30 minutes"}
             )
-            const verifyLink = `${req.protocol}://${req.get("host")}"/api/v1/user${Token}`
+            const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
             await user.save()
             await sendMail({
                 subject:`Verification email`,
@@ -193,7 +193,7 @@ exports.resendVerificationEmail = async (req, res) => {
         }
 
         const Token = jwt.sign({Email: user.Email }, process.env.JWT_SECRET, { expiresIn: '20mins' });
-        const verifyLink = `https://cohort-4-todo-app-3.onrender.com/api/v1/user/verify/${Token}`
+        const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
 
         let mailOptions = {
             email: user.Email,
@@ -226,7 +226,7 @@ exports.ForgetPassword = async(req,res) =>{
 
         const ResetToken = jwt.sign({Email: user.Email }, process.env.JWT_SECRET, { expiresIn: '20mins' });
 
-        const verifyLink = `https://cohort-4-todo-app-3.onrender.com/api/v1/user/reset-password/${ResetToken}`
+        const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/reset-password/${ResetToken}`
         const mailOptions = {
             email: user.Email,
             subject: 'Reset password',
