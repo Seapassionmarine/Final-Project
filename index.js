@@ -3,12 +3,13 @@ const session = require('express-session')
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passport = require('passport')
 const router = require('./router/userR')
+const cors = require('cors')
 require('./config/dbconfig')
 
 const app = express()
 
 app.use(express.json())
-
+app.use(cors({origin: "*"}))
 app.use('/uploads',express.static('uploads'))
 app.use(session({
     secret: process.env.session_secret,
