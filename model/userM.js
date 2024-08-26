@@ -1,11 +1,7 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
-    firstName:{
-        type:String,
-        required:true
-    },
-    lastName:{
+    fullName:{
         type:String,
         required:true
     },
@@ -18,6 +14,15 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    HomeAddress:{
+        type:String,
+        required:true
+    },
+    phoneNumber:{
+        type:String,
+        required:true,
+        unique:true
+    },
     profilePicture:{
         type:String
     },
@@ -29,7 +34,7 @@ const userSchema = new mongoose.Schema({
         type:Boolean, 
         default:false 
     },
-
+    blackList:[]
 },{timestamps:true})
 
 const userModel = mongoose.model ('user',userSchema)

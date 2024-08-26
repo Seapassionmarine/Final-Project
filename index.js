@@ -5,6 +5,7 @@ const passport = require('passport')
 const router = require('./router/userR')
 const cors = require('cors')
 require('./config/dbconfig')
+require ("dotenv").config()
 
 const app = express()
 

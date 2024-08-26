@@ -1,18 +1,18 @@
 const userModel = require('../model/userM')
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const sendMail = require('../helpers/sendMail')
+const {sendMail} = require('../helpers/sendMail')
 const {signUpTemplate,verifyTemplate,forgotPasswordTemplate} = require('../helpers/HTML')
 const cloudinary = require('../utils/cloudinary')
 const fs = require('fs')
 const passport = require('passport')
-const { path } = require('@hapi/joi/lib/errors')
+require ("dotenv").config()
 
 exports.HomePage = async(req,res)=>{
     try {
         if(!req.session.user){
             return res.status(401).json({
-                message: `You are not authenticated,Welcome to our App`
+                message: `Welcome to our App`
             })
         }
         else{
@@ -27,33 +27,37 @@ exports.HomePage = async(req,res)=>{
 
 exports.signUp = async(req,res)=>{
     try {
-        const {firstName,lastName,Email,Password} = req.body
-        if(!firstName || !lastName || !Email || !Password){
+        const {fullName,Email,Password,phoneNumber,HomeAddress} = req.body
+        if(!fullName || !Email || !HomeAddress || !Password || !phoneNumber){
             return res.status(400).json({
                 message: `Please enter all details`
             })
         }
-        const file = req.file.path
-        const image = await cloudinary.uploader.upload(file)
+        path = './upload'
+        const file = req.file
+        const image = await cloudinary.uploader.upload(file.path)
+        // console.log(req.file.path)
         const existingUser = await userModel.findOne({Email})
         if (existingUser) {
             return res.status(400).json({
                 message: `User with email already exist`
             })
-        } else {
+        } 
             const saltedPassword = await bcryptjs.genSalt(12)
-            const hashedPassword = await bcryptjs.hash(Password,saltedPassword)
+            const hashedPassword = await bcryptjs.hash(Password,saltedPassword) 
             
             const user = new userModel({
-                firstName,
-                lastName,
+                fullName,
                 Email,
-                Password,
+                HomeAddress,
+                Password:hashedPassword,
+                phoneNumber,
                 profilePicture:image.secure_url
             })
-            const Token = jwt.sign(
-                {id:user._id,Email:user.Email},
-                process,env.JWT_SECRET,
+            const Token = jwt.sign({
+                id:user._id,
+                Email:user.Email
+                },process.env.JWT_SECRET,
                 {expiresIn:"30 minutes"}
             )
             const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
@@ -61,13 +65,13 @@ exports.signUp = async(req,res)=>{
             await sendMail({
                 subject:`Verification email`,
                 email:user.Email,
-                html:signUpTemplate(verifyLink,user.firstName)
+                html:signUpTemplate(verifyLink,user.fullName)
             })
             res.status(200).json({
                 message: `User created successfully`,
                 data:user
             })
-        }
+        
     } catch (err) {
         res.status(500).json(err.message)
     }
@@ -92,6 +96,8 @@ exports.login = async(req,res)=>{
                 message:`Incorrect password`
             })
         }
+        req.session.user = checkMail.Email
+
         if(!checkMail.isVerified){
             return res.status(400).json({
                 message:`User not verified,Please check your mail to verify your account`
@@ -111,27 +117,20 @@ exports.login = async(req,res)=>{
         res.status(500).json(err.message)
     }
 }
-
-exports.makeAdmin = async(req,res)=>{
+exports.makeAdmin = async(req, res)=> {
     try {
-        const userId = req.params.id
+        const {userId} = req.params
         const user = await userModel.findById(userId)
         if(!user){
-            return res.status(500).json({
-                message:`User not found`
-            })
-        }
-        if(!user.isVerified){
-            return res.status(400).json({
-                message:`User not verified`
-            })
+            return res.status(404).json(`User with ID ${userId} was not found`)
         }
         user.isAdmin = true
         await user.save()
-
         res.status(200).json({
-            message:`User is now an Admin`
+            message: `Dear ${user.fullName}, you're now an admin`,
+            data: user
         })
+
     } catch (err) {
         res.status(500).json(err.message)
     }
@@ -152,13 +151,13 @@ exports.verifyEmail = async (req, res) => {
             })
         }
         // Check if the user has already been verified
-        if (user.isVerfied) {
+        if (user.isVerified) {
             return res.status(400).json({
                 message: 'User already verified'
             })
         }
         // Verify the user
-        user.isVerfied = true;
+        user.isVerified = true;
         // Save the user data
         await user.save();
         // Send a success response
@@ -186,19 +185,23 @@ exports.resendVerificationEmail = async (req, res) => {
             })
         }
         // Check if the user has already been verified
-        if (user.isVerfied) {
+        if (user.isVerified) {
             return res.status(400).json({
                 message: 'User already verified'
             })
         }
 
-        const Token = jwt.sign({Email: user.Email }, process.env.JWT_SECRET, { expiresIn: '20mins' });
+        const Token = jwt.sign({
+        Email: user.Email 
+       }, process.env.JWT_SECRET, 
+       { expiresIn: '20mins' 
+       });
         const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
 
         let mailOptions = {
             email: user.Email,
             subject: 'Verification email',
-            html: verifyTemplate(verifyLink, user.FullName),
+            html: verifyTemplate(verifyLink, user.fullName),
         }
         // Send the the email
         await sendMail(mailOptions);
@@ -224,13 +227,17 @@ exports.ForgetPassword = async(req,res) =>{
             })
         }
 
-        const ResetToken = jwt.sign({Email: user.Email }, process.env.JWT_SECRET, { expiresIn: '20mins' });
+        const ResetToken = jwt.sign({
+        Email: user.Email 
+        }, process.env.JWT_SECRET,
+        { expiresIn: '20mins' 
+        });
 
         const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/reset-password/${ResetToken}`
         const mailOptions = {
             email: user.Email,
             subject: 'Reset password',
-            html:forgotPasswordTemplate(verifyLink,user.FullName)
+            html:forgotPasswordTemplate(verifyLink,user.fullName)
         }
 
         await sendMail(mailOptions)
@@ -260,7 +267,7 @@ exports.ResetPassword = async (req,res)=>{
             })
         }
 
-        const saltedeRounds = await bcryptjs.genSalt(10);
+        const saltedeRounds = await bcryptjs.genSalt(12);
         const hashedPassword = await bcryptjs.hash(Password, saltedeRounds);
 
         user.Password = hashedPassword
@@ -283,7 +290,7 @@ exports.changePassword = async(req,res)=>{
     try {
        const Token = req.params
        const {Password,OldPassword} = req.body
-       const {Email} = jwt.verify(Token.process.env.JWT_SECRET) 
+       const {Email} = jwt.verify(Token,process.env.JWT_SECRET) 
        //check for user
        const user = await userModel.findOne({Email})
        if(!user){
@@ -293,7 +300,7 @@ exports.changePassword = async(req,res)=>{
        if(!verifyPassword){
         return res.status(400).json('Password does not correspond with the previous password')
        }
-       const saltedeRounds = await bcryptjs.genSalt(10)
+       const saltedeRounds = await bcryptjs.genSalt(12)
        const hashedPassword = await bcryptjs.hash(Password,saltedeRounds)
        user.Password = hashedPassword
 
@@ -357,11 +364,35 @@ exports.oneUser = async (req,res)=>{
         res.status(500).json(err.message)
     }
 }
-exports.logOut = async(req,res)=>{
-    req.session.destroy()
-    res.status(200).json({
-        message: `Logout successfully`
-    })
+exports.logOut = async (req, res) => {
+    try {
+        const auth = req.headers.authorization;
+        const token = auth.split(' ')[1];
+
+        if(!token){
+            return res.status(401).json({
+                message: 'invalid token'
+            })
+        }
+        // Verify the user's token and extract the user's email from the token
+        const { email } = jwt.verify(token, process.env.jwt_secret);
+        // Find the user by ID
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        user.blackList.push(token);
+        // Save the changes to the database
+        await user.save();
+        //   Send a success response
+        res.status(200).json({
+            message: "User logged out successfully."
+        });
+    } catch (error) {
+        res.status(500).json(err.message);
+    }
 }
 
 exports.callback = passport.authenticate('google', {
@@ -381,8 +412,7 @@ exports.createInfoWithReturnedInfo = async(req,res)=>{
             // })
         }
         const data = new userModel({
-            FirstName:req.user._json.name.split(' ')[0],
-            LastName:req.user._json.name.split(' ')[1],
+            fullName:req.user._json.name.split(' ')[0],
             Email:req.user._json.email,
             profilePicture:req.user._json.picture,
             isVerified:req.user._json.email_verified,
