@@ -1,2 +1,5 @@
 .env
 node_modules
+pickUpDetailsC.js
+pickUpDetailsM.js
+pickUpDetailsR.js

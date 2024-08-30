@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
-    fullName:{
+    Name:{
         type:String,
         required:true
     },
@@ -10,21 +10,18 @@ const userSchema = new mongoose.Schema({
         required:true,
         unique:true
     },
-    Password:{
-        type:String,
-        required:true
-    },
-    HomeAddress:{
-        type:String,
-        required:true
-    },
-    phoneNumber:{
+    PhoneNumber:{
         type:String,
         required:true,
         unique:true
     },
-    profilePicture:{
-        type:String
+    Password:{
+        type:String,
+        required:true
+    },
+    Location:{
+        type:String,
+        required:true
     },
     isVerified:{ 
         type:Boolean, 

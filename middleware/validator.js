@@ -2,32 +2,26 @@ const Joi = require('@hapi/joi');
 
 exports.signUpValidator = async (req, res, next) => {
     const schema = Joi.object({
-        fullName: Joi.string().min(3).required().trim().regex( /^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
-            "any.required": "Fullname is required.",
-            "string.empty": "Fullname cannot be an empty string.",
-            "string.min": "Fullname must be at least 3 characters long.",
-            "string.pattern.base": "Full name cannot start or end with a whitespace.",
-          }),
-        Email: Joi.string().trim().email().messages({
-            "any.required": "Please provide your email address.",
-            "string.empty": "Email address cannot be left empty.",
-            "string.email": "Invalid email format. Please use a valid email address.",
+        firstName: Joi.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
+        "any.required": "please provide Name",
+        "string.empty": "Name cannot be empty",
+        "string.min": "the minimum name must be at least 3 character long",
+        "string.pattern.base": "Name should only contain letters",
+      }),
+       Email: Joi.string().email().min(7).required().messages({
+        "any.required": "please provide your email address",
+        "string.empty": "email cannot be empty",
+        "string.email":"invalid email format. please enter a valid email address",
+      }),
+       Password: Joi.string().required().min(8).max(50).regex( /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/).messages({
+          "string.pattern.base":"Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+          "string.empty": "Password cannot be empty",
         }),
-        Password: Joi.string().required().regex(/^(?=.[a-z])(?=.[A-Z])(?=.[0-9])(?=.[!@#$%^&(),.?":{}|<>])[A-Za-z0-9!@#$%^&(),.?":{}|<>]{8,50}$/).messages({
-            "any.required": "Please provide a password.",
-            "string.empty": "Password cannot be left empty.",
-            "string.pattern.base":"Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
-        }),
-        profilePicture: Joi.string().required().messages({
-            "any.required":"please provide a profile picture",
-            "string.empty":"Profile picture is required"
-        }),
-        HomeAddress:Joi.string().required().messages({
-            'string.base': 'Address must be a string.',
+        Location:Joi.string().required().messages({
             'any.required': 'Address is a required field.',
             'string.empty': 'please provide an address'
         }),
-        phoneNumber:Joi.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
+        PhoneNumber:Joi.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
      })
     const {err} = schema.validate(req.body);
 
@@ -42,16 +36,15 @@ exports.signUpValidator = async (req, res, next) => {
 
 exports.logInValidator = async (req, res, next) => {
     const schema = Joi.object({
-        Email: Joi.string().trim().email().required().messages({
-            "any.required": "Please provide your email address.",
-            "string.empty": "Email address cannot be left empty.",
-            "string.email": "Invalid email format. Please use a valid email address.",
-        }),
-        Password: Joi.string().required().pattern(new RegExp("^(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$")).messages({
-            "any.required": "Please provide a password.",
-            "string.empty": "Password cannot be left empty.",
-            "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character.",
-        }),
+        Email: Joi.string().email().min(7).required().messages({
+            "any.required": "please provide your email address",
+            "string.empty": "email cannot be empty",
+            "string.email":"invalid email format. please enter a valid email address",
+          }),
+           Password: Joi.string().required().min(8).max(50).regex( /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/).messages({
+              "string.pattern.base":"Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+              "string.empty": "Password cannot be empty",
+            }),
     })
     const {err} = schema.validate(req.body);
 

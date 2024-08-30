@@ -3,40 +3,19 @@ const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const {sendMail} = require('../helpers/sendMail')
 const {signUpTemplate,verifyTemplate,forgotPasswordTemplate} = require('../helpers/HTML')
-const cloudinary = require('../utils/cloudinary')
 const fs = require('fs')
-const passport = require('passport')
 require ("dotenv").config()
 
-exports.HomePage = async(req,res)=>{
-    try {
-        if(!req.session.user){
-            return res.status(401).json({
-                message: `Welcome to our App`
-            })
-        }
-        else{
-            return res.status(200).json({
-                message: `Welcome ${req.session.user}`
-            })
-        }
-    } catch (err) {
-        res.status(500).json(err.message)
-    }
-}
 
 exports.signUp = async(req,res)=>{
     try {
-        const {fullName,Email,Password,phoneNumber,HomeAddress} = req.body
-        if(!fullName || !Email || !HomeAddress || !Password || !phoneNumber){
+        const {fullName,Email,Password,PhoneNumber,Location} = req.body
+        if(!fullName || !Email || !Location || !Password || !PhoneNumber){
             return res.status(400).json({
                 message: `Please enter all details`
             })
         }
-        path = './upload'
-        const file = req.file
-        const image = await cloudinary.uploader.upload(file.path)
-        // console.log(req.file.path)
+        
         const existingUser = await userModel.findOne({Email})
         if (existingUser) {
             return res.status(400).json({
@@ -49,10 +28,9 @@ exports.signUp = async(req,res)=>{
             const user = new userModel({
                 fullName,
                 Email,
-                HomeAddress,
+                Location,
                 Password:hashedPassword,
-                phoneNumber,
-                profilePicture:image.secure_url
+                PhoneNumber
             })
             const Token = jwt.sign({
                 id:user._id,
@@ -272,7 +250,7 @@ exports.ResetPassword = async (req,res)=>{
 
         user.Password = hashedPassword
         // console.log(hashedPassword)
-
+        
         await user.save()
 
         res.status(200).json({
@@ -295,11 +273,11 @@ exports.changePassword = async(req,res)=>{
        const user = await userModel.findOne({Email})
        if(!user){
         return res.status(400).json('User not found')
-       }
+    }
        const verifyPassword = await bcryptjs.compare(OldPassword,user.Password)
        if(!verifyPassword){
         return res.status(400).json('Password does not correspond with the previous password')
-       }
+    }
        const saltedeRounds = await bcryptjs.genSalt(12)
        const hashedPassword = await bcryptjs.hash(Password,saltedeRounds)
        user.Password = hashedPassword
@@ -368,7 +346,7 @@ exports.logOut = async (req, res) => {
     try {
         const auth = req.headers.authorization;
         const token = auth.split(' ')[1];
-
+        
         if(!token){
             return res.status(401).json({
                 message: 'invalid token'
@@ -395,46 +373,9 @@ exports.logOut = async (req, res) => {
     }
 }
 
-exports.callback = passport.authenticate('google', {
-    successRedirect:'/api/v1/user/success/signup',
-    failureRedirect:'/HomePage'
- })
-
-exports.createInfoWithReturnedInfo = async(req,res)=>{
-    try {
-        console.log(req.user._json)
-        const checkUser = await userModel.findOne({Email:req.user._json.Email})
-        if(!checkUser){
-            req.session.user = checkUser.Email
-            return res.redirect('/api/v1/user/HomePage')
-            // return res.status(404).json({
-            //     message: `User with email already exist`
-            // })
-        }
-        const data = new userModel({
-            fullName:req.user._json.name.split(' ')[0],
-            Email:req.user._json.email,
-            profilePicture:req.user._json.picture,
-            isVerified:req.user._json.email_verified,
-            signUpOption:req.user.provider
-        })
-        await data.save()
-        res.status(200).json({
-            message: `User created successfully`,
-            data
-        })
-    } catch (err) {
-        res.status(500).json(err.message)
-    }
-}
-
-exports.signWithGoogle = passport.authenticate('google', { scope: ['Email','profile']})
-
-exports.loginWithGoogle = passport.authenticate('google', { scope: ['Email','profile']})
-
 exports.deleteUser = async (req,res)=>{
     try {
-        const userId = req.params.id
+        const {userId} = req.params
         const user = await userModel.findById(userId)
         if(!user){
             return res.status(404).json({
