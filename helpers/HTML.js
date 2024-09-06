@@ -1,4 +1,4 @@
-const signUpTemplate=(verifyLink,fullName)=>{
+const signUpTemplate=(verifyLink,Name)=>{
     return `
     
 <!DOCTYPE html>
@@ -59,7 +59,7 @@ const signUpTemplate=(verifyLink,fullName)=>{
             <h1>Welcome to THE CURVE AFRICA!</h1>
         </div>
         <div class="content">
-            <p>Hello ${fullName},</p>
+            <p>Hello ${Name},</p>
             <p>Thank you for signing up on our platform. We are excited to have you on board.</p>
             <p>Please click the button below to verify your account:</p>
             <p>
@@ -79,7 +79,7 @@ const signUpTemplate=(verifyLink,fullName)=>{
     `
 }
 
-const forgotPasswordTemplate = (verifyLink, fullName) => {
+const forgotPasswordTemplate = (verifyLink, Name) => {
     return `
     <!DOCTYPE html>
 <html>
@@ -139,7 +139,7 @@ const forgotPasswordTemplate = (verifyLink, fullName) => {
             <h1>Verification Email</h1>
         </div>
         <div class="content">
-            <p>Hello ${fullName},</p>
+            <p>Hello ${Name},</p>
             <p>Your verification email.</p>
             <p>Please click the button below to verify your account:</p>
             <p>
@@ -158,7 +158,7 @@ const forgotPasswordTemplate = (verifyLink, fullName) => {
     `
 }
 
-const verifyTemplate = (verifyLink,fullName) => {
+const verifyTemplate = (verifyLink,Name) => {
     return `
     <!DOCTYPE html>
 <html>
@@ -218,7 +218,7 @@ const verifyTemplate = (verifyLink,fullName) => {
             <h1>Verification Email</h1>
         </div>
         <div class="content">
-            <p>Hello ${fullName},</p>
+            <p>Hello ${Name},</p>
             <p>Your verification email.</p>
             <p>Please click the button below to verify your account:</p>
             <p>

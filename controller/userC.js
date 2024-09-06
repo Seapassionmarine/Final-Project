@@ -1,4 +1,5 @@
 const userModel = require('../model/userM')
+const mongoose = require('mongoose')
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const {sendMail} = require('../helpers/sendMail')
@@ -9,12 +10,13 @@ require ("dotenv").config()
 
 exports.signUp = async(req,res)=>{
     try {
-        const {fullName,Email,Password,PhoneNumber,Location} = req.body
-        if(!fullName || !Email || !Location || !Password || !PhoneNumber){
+        const {Name,Email,Password,PhoneNumber,Location} = req.body
+        if(!Name || !Email || !Location || !Password || !PhoneNumber){
             return res.status(400).json({
                 message: `Please enter all details`
             })
         }
+        // console.log(Password)
         
         const existingUser = await userModel.findOne({Email})
         if (existingUser) {
@@ -22,36 +24,39 @@ exports.signUp = async(req,res)=>{
                 message: `User with email already exist`
             })
         } 
-            const saltedPassword = await bcryptjs.genSalt(12)
-            const hashedPassword = await bcryptjs.hash(Password,saltedPassword) 
-            
-            const user = new userModel({
-                fullName,
-                Email,
-                Location,
-                Password:hashedPassword,
-                PhoneNumber
-            })
+        const saltedPassword = await bcryptjs.genSaltSync(12)
+        const hashedPassword = await bcryptjs.hashSync(Password, saltedPassword) 
+        console.log(hashedPassword)
+        
+        const user = new userModel({
+            Name,
+            Email,
+            Location,
+            Password:hashedPassword,
+            PhoneNumber
+        })
+        console.log(user)
             const Token = jwt.sign({
                 id:user._id,
                 Email:user.Email
-                },process.env.JWT_SECRET,
+                },process.env.JWT_SECRET || finalProject,
                 {expiresIn:"30 minutes"}
             )
+            console.log(Token)
             const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
-            await user.save()
+             await user.save()
             await sendMail({
                 subject:`Verification email`,
                 email:user.Email,
-                html:signUpTemplate(verifyLink,user.fullName)
+                html:signUpTemplate(verifyLink,user.Name)
             })
             res.status(200).json({
                 message: `User created successfully`,
                 data:user
             })
         
-    } catch (err) {
-        res.status(500).json(err.message)
+    } catch (error) {
+    res.status(500).json("internal server error " + error.message)
     }
 }
 exports.login = async(req,res)=>{
@@ -74,7 +79,6 @@ exports.login = async(req,res)=>{
                 message:`Incorrect password`
             })
         }
-        req.session.user = checkMail.Email
 
         if(!checkMail.isVerified){
             return res.status(400).json({
@@ -97,15 +101,15 @@ exports.login = async(req,res)=>{
 }
 exports.makeAdmin = async(req, res)=> {
     try {
-        const {userId} = req.params
-        const user = await userModel.findById(userId)
+        const {id} = req.params
+        const user = await userModel.findById(id)
         if(!user){
-            return res.status(404).json(`User with ID ${userId} was not found`)
+            return res.status(404).json(`User with ID ${id} was not found`)
         }
         user.isAdmin = true
         await user.save()
         res.status(200).json({
-            message: `Dear ${user.fullName}, you're now an admin`,
+            message: `Dear ${user.Name}, you're now an admin`,
             data: user
         })
 
@@ -179,7 +183,7 @@ exports.resendVerificationEmail = async (req, res) => {
         let mailOptions = {
             email: user.Email,
             subject: 'Verification email',
-            html: verifyTemplate(verifyLink, user.fullName),
+            html: verifyTemplate(verifyLink, user.Name),
         }
         // Send the the email
         await sendMail(mailOptions);
@@ -215,7 +219,7 @@ exports.ForgetPassword = async(req,res) =>{
         const mailOptions = {
             email: user.Email,
             subject: 'Reset password',
-            html:forgotPasswordTemplate(verifyLink,user.fullName)
+            html:forgotPasswordTemplate(verifyLink,user.Name)
         }
 
         await sendMail(mailOptions)
@@ -290,29 +294,40 @@ exports.changePassword = async(req,res)=>{
     }
 }
 
-exports.updateUser = async(req,res)=>{
+exports.updateUser = async (req, res) => {
     try {
-        const id = req.params.id
-        if(!mongoose.Types.ObjectId.isValid(id)){
-            return res.status(400).json({
-                message:`Id format is invalid`
-            })
+         const { id } = req.params; // Assuming the user's ID is passed as a URL parameter
+         const {Name,Email,Password,PhoneNumber,Location} = req.body
+
+        if (!id) {
+            return res.status(400).json(`User ID is required.`);
         }
-        const{FullName} = req.body
-        const data = {FullName}
-        const update = await userModel.findByIdAndUpdate(id,data,{new:true})
-        if(!update){
-            return res.status(400).json({
-                message:`User with id does not exist`
-            })
+
+        // Find the user by ID
+        const user = await userModel.findByIdAndUpdate(id);
+
+        if (!user) {
+            return res.status(404).json(`User not found.`);
         }
-         res.status(200).json({ 
-            message:`Full name updated successfully`
-         })
+
+        // Update the user's details
+        user.Name = Name || user.Name;
+        user.Password = Password || user.Password;
+        user.Email = Email || user.Email;
+        user.PhoneNumber = PhoneNumber || user.PhoneNumber;
+        user.Location = Location || user.Location;
+
+        // Save the updated user
+        await user.save();
+
+        res.status(200).json({
+            message: 'User updated successfully.',
+            data: user,
+        });
     } catch (err) {
-        res.status(500).json(err.message)
+        res.status(500).json(err.message);
     }
-}
+};
 
 exports.getAll = async(req,res)=>{
     try {
@@ -325,23 +340,22 @@ exports.getAll = async(req,res)=>{
     }
 }
 
-exports.oneUser = async (req,res)=>{
+exports.oneUser = async (req, res) => {
     try {
-        const userId = req.params.id
-        const user = await userModel.findById({userId})
-        if(!user){
-            return res.status(400).json({
-                message:`User not found`
-            })
+        const  {id}  = req.params;
+        const user = await userModel.findById(id)
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
         }
         res.status(200).json({
-            message:`Dear ${user.firstName},kindly find your information below`,
-            data:user
-        })
+            message: 'User retrieved successfully.',
+            data: user,
+        });
     } catch (err) {
-        res.status(500).json(err.message)
+        res.status(500).json(err.message);      
     }
-}
+};
+
 exports.logOut = async (req, res) => {
     try {
         const auth = req.headers.authorization;
