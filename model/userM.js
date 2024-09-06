@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema({
         type:Boolean, 
         default:false 
     },
+    wasteDetail:[
+        {type:mongoose.Schema.Types.ObjectId,
+            ref:"waste",
+        }
+    ],
     blackList:[]
 },{timestamps:true})
 
