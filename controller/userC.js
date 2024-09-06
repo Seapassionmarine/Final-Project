@@ -15,9 +15,7 @@ exports.signUp = async(req,res)=>{
             return res.status(400).json({
                 message: `Please enter all details`
             })
-        }
-        // console.log(Password)
-        
+        }        
         const existingUser = await userModel.findOne({Email})
         if (existingUser) {
             return res.status(400).json({
@@ -35,7 +33,6 @@ exports.signUp = async(req,res)=>{
             Password:hashedPassword,
             PhoneNumber
         })
-        console.log(user)
             const Token = jwt.sign({
                 id:user._id,
                 Email:user.Email
