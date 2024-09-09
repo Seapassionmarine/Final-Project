@@ -39,7 +39,7 @@ exports.signUp = async(req,res)=>{
                 {expiresIn:"30 minutes"}
             )
             console.log(Token)
-            const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
+            const verifyLink = `https://final-project-wq1b.onrender.com/api/v1/user/verify/${Token}`
              await user.save()
             await sendMail({
                 subject:`Verification email`,
@@ -182,7 +182,7 @@ exports.resendVerificationEmail = async (req, res) => {
        }, process.env.JWT_SECRET, 
        { expiresIn: '20mins' 
        });
-        const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/verify/${Token}`
+        const verifyLink = `https://final-project-wq1b.onrender.com/api/v1/user/verify/${Token}`
 
         let mailOptions = {
             email: user.Email,
@@ -219,7 +219,7 @@ exports.ForgetPassword = async(req,res) =>{
         { expiresIn: '20mins' 
         });
 
-        const verifyLink = `https://final-project-eldw.onrender.com/api/v1/user/reset-password/${ResetToken}`
+        const verifyLink = `https://final-project-wq1b.onrender.com/api/v1/user/reset-password/${ResetToken}`
         const mailOptions = {
             email: user.Email,
             subject: 'Reset password',
