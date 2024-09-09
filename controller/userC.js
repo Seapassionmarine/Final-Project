@@ -26,7 +26,7 @@ exports.signUp = async(req,res)=>{
         console.log(hashedPassword)
         
         const user = new userModel({
-            Name,
+            Name:Name.trimEnd(),
             Email,
             Location,
             Password:hashedPassword,
@@ -52,6 +52,14 @@ exports.signUp = async(req,res)=>{
             })
         
     } catch (error) {
+        if (error.code === 11000) {
+            const duplicateField = Object.keys(error.keyValue)[0]; 
+            const duplicateValue = error.keyValue[duplicateField];
+    
+            return res.status(400).json({
+                error: `Duplicate value: ${duplicateValue} for field: ${duplicateField}. Please use another one.`,
+            });
+        }
     res.status(500).json("internal server error " + error.message)
     }
 }
