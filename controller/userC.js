@@ -1,5 +1,4 @@
 const userModel = require('../model/userM')
-const mongoose = require('mongoose')
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const {sendMail} = require('../helpers/sendMail')

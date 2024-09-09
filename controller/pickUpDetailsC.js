@@ -1,7 +1,5 @@
-
-
-
-
+const {pickUpWaste} = require('../helpers/HTML')
+const {sendMail} = require('../helpers/sendMail')
 const userModel = require("../model/userM")
 const wasteModel = require('../model/PickUpDetailsM')
 
@@ -9,14 +7,32 @@ exports.createWaste  = async(req, res)=>{
   
   try {
     const id = req.params.id
+    if (!id) {
+      return res.status(400).json({
+         message: 'User id is required' });
+    }
     const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'User with id not found' });
+    }
 
     const createWaste = new wasteModel(req.body)
+    if (createWaste.WasteKG < 10) {
+      return res.status(400).json({
+         message: 'Waste must be at least 10 kg' });
+    }
     createWaste.user = user
     await createWaste.save()
 
     user.userDetail.push(createWaste)
     await user.save()
+    
+    await sendMail({
+      subject: 'Waste Recycling Confirmation Email',
+      email: createWaste.Email,
+      html: pickUpWasteTemplate(user.fullName)
+    });
 
     res.status(201).json({
       message: 'List created successfully',
@@ -44,7 +60,7 @@ exports.getAllWaste= async(req, res)=>{
     const getAllWaste = await userModel.find();
     if (getAllWaste.length=== 0) {
       res.status(200).json({
-        message:"list of all to do in the database",
+        message:"list of all waste detail.",
         data: getAllWaste
       })
     }
