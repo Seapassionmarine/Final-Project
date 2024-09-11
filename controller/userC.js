@@ -123,39 +123,49 @@ exports.makeAdmin = async(req, res)=> {
 exports.verifyEmail = async (req, res) => {
     try {
         // Extract the token from the request params
-        const {Token} = req.params;
+        const { token } = req.params;
         // Extract the email from the verified token
-        const {Email} = jwt.verify(Token,process.env.JWT_SECRET);
-        // Find the user with the email
-        const user = await userModel.findOne({Email});
-        // Check if the user is still in the database
+        const { Email } = jwt.verify(token, process.env.JWT_SECRET);
+        // Find the user with the extracted email
+        const user = await userModel.findOne({ Email: Email });
+
+        // Check if the user exists
         if (!user) {
             return res.status(404).json({
-                message: 'User not found'
-            })
+                message: 'User not found',
+            });
         }
+
         // Check if the user has already been verified
         if (user.isVerified) {
             return res.status(400).json({
-                message: 'User already verified'
-            })
+                message: 'User already verified',
+            });
         }
+
         // Verify the user
         user.isVerified = true;
         // Save the user data
         await user.save();
+
         // Send a success response
-        res.status(200).json({
-            message: 'User verified successfully'
-        })
+        return res.status(200).json({
+            message: 'User verified successfully',
+        });
 
     } catch (err) {
-        if (err instanceof jwt.JsonWebTokenError) {
-            return res.json({message: 'Link expired.'})
+        // Handle JWT expiration or verification errors
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(400).json({ message: 'Token has expired' });
+        } else if (err instanceof jwt.JsonWebTokenError) {
+            return res.status(400).json({ message: 'Invalid token' });
         }
-        res.status(500).json(err.message)
+
+        // Handle other errors
+        return res.status(500).json({ message: err.message });
     }
-}
+};
+
 
 exports.resendVerificationEmail = async (req, res) => {
     try {
@@ -217,11 +227,11 @@ exports.ForgetPassword = async(req,res) =>{
         { expiresIn: '20mins' 
         });
 
-        const verifyLink = `https://final-project-wq1b.onrender.com/api/v1/user/reset-password/${ResetToken}`
+        const resetLink = `https://final-project-wq1b.onrender.com/api/v1/user/reset-password/${ResetToken}`
         const mailOptions = {
             email: user.Email,
             subject: 'Reset password',
-            html:forgotPasswordTemplate(verifyLink,user.Name)
+            html:forgotPasswordTemplate(resetLink,user.Name)
         }
 
         await sendMail(mailOptions)
@@ -263,8 +273,11 @@ exports.ResetPassword = async (req,res)=>{
             message:`Reset password successfully`
         })
     } catch (err) {
-        if(err instanceof jwt.JsonWebTokenError){
-            return res.status(400).json('Link has expired,Please request for a new link')
+        // Handle JWT expiration or verification errors
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(400).json({ message: 'Token has expired, please request for another link' });
+        } else if (err instanceof jwt.JsonWebTokenError) {
+            return res.status(400).json({ message: 'Invalid token' });
         }
         res.status(500).json(err.message)
     }

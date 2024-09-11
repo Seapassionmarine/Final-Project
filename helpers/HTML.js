@@ -25,7 +25,7 @@ const signUpTemplate=(verifyLink,Name)=>{
             background-color: #fff;
           }
           .header {
-            background: linear-gradient(90deg, #ff6600, #00cc66);
+            background: #ff6600; /* Orange header */
             padding: 10px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -37,7 +37,7 @@ const signUpTemplate=(verifyLink,Name)=>{
             color: #333;
           }
           .footer {
-            background: #333;
+            background: #ff6600; /* Orange header */
             padding: 10px;
             text-align: center;
             border-top: 1px solid #ddd;
@@ -47,7 +47,7 @@ const signUpTemplate=(verifyLink,Name)=>{
           }
           .button {
             display: inline-block;
-            background-color: #ff9900;
+            background: #ff6600; /* Orange header */
             color: #fff;
             padding: 10px 20px;
             text-decoration: none;
@@ -59,7 +59,7 @@ const signUpTemplate=(verifyLink,Name)=>{
       <body>
         <div class="container">
           <div class="header">
-            <h1>Welcome to Groceria!</h1>
+            <h1>Welcome to RecyclePay!</h1>
           </div>
           <div class="content">
             <p>Hello, ${Name},</p>
@@ -80,13 +80,14 @@ const signUpTemplate=(verifyLink,Name)=>{
     `;
   };
 
-const forgotPasswordTemplate = (verifyLink, Name) => {
+const forgotPasswordTemplate = (resetLink, Name) => {
     return `
     <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to [Your App Name]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset Request</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -106,7 +107,7 @@ const forgotPasswordTemplate = (verifyLink, Name) => {
             background-color: #f4f4f4; /* Light grey background */
         }
         .header {
-            background: #333333;
+            background: #ff6600; /* Orange header */
             padding: 10px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -117,45 +118,47 @@ const forgotPasswordTemplate = (verifyLink, Name) => {
             color: #333333;
         }
         .footer {
-            background: #333333;
+            background: #ff6600; /* Orange footer */
             padding: 10px;
             text-align: center;
             border-top: 1px solid #ddd;
             font-size: 0.9em;
-            color: #cccccc;
+            color: #ffffff;
         }
         .button {
             display: inline-block;
-            background-color: #000000;
+            background-color: #ff6600; /* Orange button */
             color: #ffffff;
             padding: 10px 20px;
             text-decoration: none;
             border-radius: 5px;
+            margin-top: 20px;
+
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Verification Email</h1>
+            <h1>Password Reset Request</h1>
         </div>
         <div class="content">
             <p>Hello ${Name},</p>
-            <p>Your verification email.</p>
-            <p>Please click the button below to verify your account:</p>
+            <p>We received a request to reset your password. If you made this request, click the button below to set a new password:</p>
             <p>
-                <a href="${verifyLink}" class="button">Verify My Account</a>
+                <a href="${resetLink}" class="button">Reset My Password</a>
             </p>
-            <p>If you did not create an account, please ignore this email.</p>
-            <p>Best regards,<br> THE CURVE  AFRICA Team</p>
+            <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+            <p>Best regards,<br> THE RecyclePay Team</p>
         </div>
         <div class="footer">
             <p>&copy; ${new Date().getFullYear()} . All rights reserved.</p>
-            
         </div>
     </div>
 </body>
 </html>
+
+
     `
 }
 
@@ -165,6 +168,7 @@ const verifyTemplate = (verifyLink,Name) => {
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to [Your App Name]</title>
     <style>
         body {
@@ -185,7 +189,7 @@ const verifyTemplate = (verifyLink,Name) => {
             background-color: #f4f4f4; /* Light grey background */
         }
         .header {
-            background: #333333;
+            background: #ff6600; /* Orange header */
             padding: 10px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -196,20 +200,22 @@ const verifyTemplate = (verifyLink,Name) => {
             color: #333333;
         }
         .footer {
-            background: #333333;
+            background: #ff6600; /* Orange footer */
             padding: 10px;
             text-align: center;
             border-top: 1px solid #ddd;
             font-size: 0.9em;
-            color: #cccccc;
+            color: #ffffff;
         }
         .button {
-            display: inline-block;
-            background-color: #000000;
+           display: inline-block;
+            background-color: #ff6600; /* Orange button */
             color: #ffffff;
             padding: 10px 20px;
             text-decoration: none;
             border-radius: 5px;
+            margin-top: 20px;
+
         }
     </style>
 </head>
@@ -225,7 +231,7 @@ const verifyTemplate = (verifyLink,Name) => {
             <p>
                 <a href="${verifyLink}" class="button">Verify My Account</a>
             </p>
-            <p>If you did not create an account, please ignore this email.</p>
+            <p>If you did not request for mail, please ignore.</p>
             <p>Best regards,<br> THE CURVE  AFRICA Team</p>
         </div>
         <div class="footer">
@@ -237,14 +243,14 @@ const verifyTemplate = (verifyLink,Name) => {
 </html>
     `
 }
-const pickUpWaste=(Name)=>{
-    return `
-    
+const pickUpWasteTemplate=(Name,Address,PhoneNumber,WasteKG)=>{
+    return `            
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to [Your App Name]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to RecyclePay</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -264,7 +270,7 @@ const pickUpWaste=(Name)=>{
             background-color: #f4f4f4; /* Light grey background */
         }
         .header {
-            background: #333333;
+            background: #ff6600; /* Orange header */
             padding: 10px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -275,12 +281,12 @@ const pickUpWaste=(Name)=>{
             color: #333333;
         }
         .footer {
-            background: #333333;
+            background: #ff6600; /* Orange footer */
             padding: 10px;
             text-align: center;
             border-top: 1px solid #ddd;
             font-size: 0.9em;
-            color: #cccccc;
+            color: #ffffff;
         }
         .button {
             display: inline-block;
@@ -290,32 +296,59 @@ const pickUpWaste=(Name)=>{
             text-decoration: none;
             border-radius: 5px;
         }
+        .details {
+            margin-top: 10px;
+        }
+        .details p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Welcome to THE CURVE AFRICA!</h1>
+            <h1>RecyclePay Confirmation Info</h1>
         </div>
         <div class="content">
             <p>Hello ${Name},</p>
-            <p>Thank you for signing up on our platform. We are excited to have you on board.</p>
-            <p>Please click the button below to verify your account:</p>
-            <p>
-                <a href="${verifyLink}" class="button">Verify My Account</a>
-            </p>
-            <p>If you did not create an account, please ignore this email.</p>
-            <p>Best regards,<br> THECURVE  AFRICA Team</p>
+            <p>Thank you for placing an order with us. Your request has been confirmed and will be available for pickup in the next three working days.</p>
+            
+            <p>Pick Up Details</p>
+
+            <p> Name: ${Name}\n\n</p>
+            <br/>
+            <p> Address: ${Address}\n\n</p>
+            <br/>
+            <p> Phone Number: ${PhoneNumber}\n\n </p>
+            <br/>
+            <p> WasteKg: ${WasteKG}\n\n</p>
+          
+            </div>
+            
+            <p>If you did not place an order with us, please ignore this email.</p>
+            <p>Best regards,<br>The RecyclePay Team</p>
         </div>
         <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} . All rights reserved.</p>
-            
+            <p>&copy; ${new Date().getFullYear()} RecyclePay. All rights reserved.</p>
         </div>
     </div>
 </body>
 </html>
+
+            </div>
+            
+            <p>If you did not place an order with us, please ignore this email.</p>
+            <p>Best regards,<br>The RecyclePay Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} RecyclePay. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+
     
     `
 }
 
-module.exports = {signUpTemplate,verifyTemplate,forgotPasswordTemplate,pickUpWaste}
+module.exports = {signUpTemplate,verifyTemplate,forgotPasswordTemplate,pickUpWasteTemplate}
