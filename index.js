@@ -17,3 +17,7 @@ const PORT = process.env.PORT
 app.listen(PORT,()=>{
     console.log(`Server connected successfully on port: ${PORT}`);
 })
+
+app.get("/", (req, res) => {
+    res.send("Welcome to RecyclePay!");
+  });

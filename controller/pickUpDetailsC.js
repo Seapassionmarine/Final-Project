@@ -18,16 +18,16 @@ exports.createWaste  = async(req, res)=>{
     }
 
     const createWaste = new wasteModel(req.body)
-    if (createWaste.WasteKG < 10) {
+    if (createWaste.WasteKG < 1) {
       return res.status(400).json({
-         message: 'Waste must be at least 10 kg' });
+         message: 'Waste must be at least 1kg' });
     }
     createWaste.user = user
     await createWaste.save()
 
     user.userDetail.push(createWaste)
     await user.save()
-    
+
     await sendMail({
       subject: 'Waste Recycling Confirmation Email',
       email: createWaste.Email,

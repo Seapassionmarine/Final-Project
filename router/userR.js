@@ -15,7 +15,7 @@ router.post('/reset-password/:token',ResetPassword)
 router.put('/make-admin/:id',isAdmin,makeAdmin)
 router.put('/update/:id',updateUser)
 router.get('/getone/:id',oneUser)
-router.get('/getall',getAll)
+router.get('/getall',authenticate,getAll)
 router.post('/log-out',logOut)
 router.delete('/delete/:userId',isAdmin,deleteUser)
 

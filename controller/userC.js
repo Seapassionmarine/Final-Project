@@ -23,11 +23,10 @@ exports.signUp = async(req,res)=>{
         } 
         const saltedPassword = await bcryptjs.genSaltSync(12)
         const hashedPassword = await bcryptjs.hashSync(Password, saltedPassword) 
-        console.log(hashedPassword)
         
         const user = new userModel({
-            Name:Name.trimEnd(),
-            Email,
+            Name:Name.trim(),
+            Email:Email.toLowerCase(),
             Location,
             Password:hashedPassword,
             PhoneNumber
@@ -38,7 +37,6 @@ exports.signUp = async(req,res)=>{
                 },process.env.JWT_SECRET || finalProject,
                 {expiresIn:"30 minutes"}
             )
-            console.log(Token)
             const verifyLink = `https://final-project-wq1b.onrender.com/api/v1/user/verify/${Token}`
              await user.save()
             await sendMail({
@@ -57,7 +55,7 @@ exports.signUp = async(req,res)=>{
             const duplicateValue = error.keyValue[duplicateField];
     
             return res.status(400).json({
-                error: `Duplicate value: ${duplicateValue} for field: ${duplicateField}. Please use another one.`,
+                error: `This ${duplicateField} has already been used, Please use another one.`,
             });
         }
     res.status(500).json("internal server error " + error.message)
