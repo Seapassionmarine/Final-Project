@@ -69,7 +69,7 @@ const signUpTemplate=(verifyLink,Name)=>{
               <a href="${verifyLink}" class="button">Verify My Account</a>
             </p>
             <p>If you did not create an account, please ignore this email.</p>
-            <p>Best regards,<br>RecyclePay Team</p>
+            <p>Best regards,<br> The RecyclePay Team</p>
           </div>
           <div class="footer">
             <p>&copy; ${new Date().getFullYear()} RecyclePay. All rights reserved.</p>
@@ -149,7 +149,7 @@ const forgotPasswordTemplate = (resetLink, Name) => {
                 <a href="${resetLink}" class="button">Reset My Password</a>
             </p>
             <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
-            <p>Best regards,<br> THE RecyclePay Team</p>
+            <p>Best regards,<br> The RecyclePay Team</p>
         </div>
         <div class="footer">
             <p>&copy; ${new Date().getFullYear()} . All rights reserved.</p>
@@ -232,7 +232,7 @@ const verifyTemplate = (verifyLink,Name) => {
                 <a href="${verifyLink}" class="button">Verify My Account</a>
             </p>
             <p>If you did not request for mail, please ignore.</p>
-            <p>Best regards,<br> THE CURVE  AFRICA Team</p>
+            <p>Best regards,<br> The RecyclePay Team</p>
         </div>
         <div class="footer">
             <p>&copy; ${new Date().getFullYear()} . All rights reserved.</p>
@@ -334,7 +334,7 @@ const pickUpWasteTemplate = (Name,Address,PhoneNumber,WasteKG)=>{
     </div>
 </body>
 </html>
-    
+
     `
 }
 

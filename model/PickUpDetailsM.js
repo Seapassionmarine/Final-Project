@@ -11,14 +11,14 @@ const PickUpSchema = new mongoose.Schema({
     },
     Email:{
         type:String,
-        required:true,
+        required:true
     },
     PhoneNumber:{
         type:String,
         required:true
     },
     WasteKG:{
-        type:String,
+        type:Number,
         required:true
     },
     user:[

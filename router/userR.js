@@ -16,7 +16,7 @@ router.put('/make-admin/:id',isAdmin,makeAdmin)
 router.put('/update/:id',authenticate,updateUser)
 router.get('/getone/:id',authenticate,oneUser)
 router.get('/getall',authenticate,isAdmin,getAll)
-router.post('/log-out',logOut)
-router.delete('/delete/:userId',isAdmin,deleteUser)
+router.post('/log-out', logOut)
+router.delete('/delete/:id',authenticate,isAdmin,deleteUser)
 
 module.exports = router 

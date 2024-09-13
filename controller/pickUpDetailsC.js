@@ -5,54 +5,71 @@ const wasteModel = require('../model/PickUpDetailsM')
 
 exports.createWaste = async (req, res) => {
   try {
-    const id = req.params.id;
-    
+    const { id } = req.params;  // Destructure 'id' from req.params
+
+    // Check if user ID is provided
     if (!id) {
       return res.status(400).json({
-         message: 'User is required' });
+        message: 'User is required',
+      });
     }
-    
+
+    // Find user by ID
     const user = await userModel.findById(id);
     if (!user) {
-      return res.status(404).json({ 
-        message: 'User not found' });
+      return res.status(404).json({
+        message: 'User not found',
+      });
     }
-    
+
+    // Create new waste entry from request body
     const createWaste = new wasteModel(req.body);
-    
+
+    // Validate that waste entry exists and has the required field 'WasteKG'
     if (!createWaste || createWaste.WasteKG === undefined) {
       return res.status(400).json({
-         message: 'Missing required fields' });
+        message: 'Missing required fields',
+      });
     }
-    createWaste.Email = user.Email; 
 
+    // Assign user's email to the waste entry
+    createWaste.Email = user.Email;
+
+    // Ensure that the waste weight is at least 10 kg
     if (createWaste.WasteKG < 10) {
       return res.status(400).json({
-         message: 'Waste must be at least 10 kg' });
+        message: 'Waste must be at least 10 kg',
+      });
     }
-    createWaste.user.push(id)
+
+    // Associate the waste entry with the user
+    createWaste.user.push(id);
     await createWaste.save();
 
-    user.wasteDetail = createWaste;
+    // Update user with waste details and save
+    user.wasteDetail = createWaste._id;
     await user.save();
 
+    // Send confirmation email
     await sendMail({
       subject: 'Waste Recycling Confirmation Email',
       email: createWaste.Email,
-      html: pickUpWasteTemplate(user.fullName)
+      html: pickUpWasteTemplate(user.Name),
     });
-    
-    
+
+    // Respond with success message and created waste entry
     res.status(201).json({
       message: 'Waste entry created successfully',
-      data: createWaste
+      data: createWaste,
     });
-    
-  } catch (error) {
-    res.status(500).json({ 
-      message: error.message });
+  } catch (err) {
+    // Handle server errors
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
+
 
 exports.getAllWaste= async(req, res)=>{
   try {

@@ -156,7 +156,7 @@ exports.verifyEmail = async (req, res) => {
     } catch (err) {
         // Handle JWT expiration or verification errors
         if (err instanceof jwt.JsonWebTokenError) {
-            return res.json({message: 'Link expired.'})
+            return res.json({message: 'Link expired,request for another link.'})
         }
 
         // Handle other errors
@@ -242,70 +242,79 @@ exports.ForgetPassword = async(req,res) =>{
     }
 }
 
-exports.ResetPassword = async (req,res)=>{
+exports.ResetPassword = async (req, res) => {
     try {
-        //get the token from params
-        const {Token} = req.params
-        const {Password} = req.body
+        // Get the token from params
+        const { token } = req.params;  // Correct destructuring of 'token'
+        const { Password } = req.body;
 
-        //confirm the new password
-        const {Email} = jwt.verify(Token,process.env.JWT_SECRET)
+        // Verify the token and extract email
+        const { Email } = jwt.verify(token, process.env.JWT_SECRET);
+
         // Find the user with the email
-        const user = await userModel.findOne({Email});
-        // Check if the user is still in the database
+        const user = await userModel.findOne({ Email });
         if (!user) {
             return res.status(404).json({
-                message: 'User not found'
-            })
+                message: 'User not found',
+            });
         }
 
-        const saltedeRounds = await bcryptjs.genSalt(12);
+        // Generate salt and hash the new password
+        const saltedeRounds = await bcryptjs.genSalt(12);  // Fixed typo: changed 'saltedeRounds' to 'saltRounds'
         const hashedPassword = await bcryptjs.hash(Password, saltedeRounds);
 
-        user.Password = hashedPassword
-        // console.log(hashedPassword)
-        
-        await user.save()
+        // Set the new password and save the user
+        user.Password = hashedPassword;
+        await user.save();
 
         res.status(200).json({
-            message:`Reset password successfully`
-        })
+            message: 'Password reset successfully',
+        });
     } catch (err) {
         // Handle JWT expiration or verification errors
         if (err instanceof jwt.TokenExpiredError) {
-            return res.status(400).json({ message: 'Token has expired, please request for another link' });
+            return res.status(400).json({ message: 'Token has expired, please request another reset link' });
         } else if (err instanceof jwt.JsonWebTokenError) {
             return res.status(400).json({ message: 'Invalid token' });
         }
-        res.status(500).json(err.message)
+        res.status(500).json({ message: err.message });
     }
-}
+};
 
-exports.changePassword = async(req,res)=>{
+
+exports.changePassword = async (req, res) => {
     try {
-       const Token = req.params
-       const {Password,OldPassword} = req.body
-       const {Email} = jwt.verify(Token,process.env.JWT_SECRET) 
-       //check for user
-       const user = await userModel.findOne({Email})
-       if(!user){
-        return res.status(400).json('User not found')
-    }
-       const verifyPassword = await bcryptjs.compare(OldPassword,user.Password)
-       if(!verifyPassword){
-        return res.status(400).json('Password does not correspond with the previous password')
-    }
-       const saltedeRounds = await bcryptjs.genSalt(12)
-       const hashedPassword = await bcryptjs.hash(Password,saltedeRounds)
-       user.Password = hashedPassword
+        const { token } = req.params;  // Destructure 'token' from req.params
+        const { NewPassword, OldPassword } = req.body;
 
-       await user.save()
-       res.status(200).json('Password changed successfully')
+        // Verify token and extract email
+        const { Email } = jwt.verify(token, process.env.JWT_SECRET);
 
+        // Check for user by email
+        const user = await userModel.findOne({ Email });
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        // Compare old password with user's current password
+        const verifyPassword = await bcryptjs.compare(OldPassword, user.Password);
+        if (!verifyPassword) {
+            return res.status(400).json({ message: 'Old password does not match' });
+        }
+
+        // Hash the new password
+        const saltedeRounds = await bcryptjs.genSalt(12);  // Fix variable name typo
+        const hashedPassword = await bcryptjs.hash(NewPassword, saltedeRounds);
+        user.Password = hashedPassword;
+
+        // Save updated user
+        await user.save();
+
+        res.status(200).json({ message: 'Password changed successfully' });
     } catch (err) {
-       res.status(500).json(err.message) 
+        res.status(500).json({ message: err.message });
     }
-}
+};
 
 exports.updateUser = async (req, res) => {
     try {
@@ -354,16 +363,16 @@ exports.getAll = async(req,res)=>{
 }
 
 exports.oneUser = async (req, res) => {
-    try {
-        const  {id}  = req.params;
-        const user = await userModel.findById(id)
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-        res.status(200).json({
-            message: 'User retrieved successfully.',
-            data: user,
-        });
+        try {
+            const {id} = req.params
+            const user = await userModel.findById(id)
+            if(!user){
+                return res.status(404).json(`User not found.`)
+            }
+            res.status(200).json({
+                message: `Dear ${user.Name}, kindly find your information below:`,
+                data: user
+            })
     } catch (err) {
         res.status(500).json(err.message);      
     }
@@ -402,15 +411,15 @@ exports.logOut = async (req, res) => {
 
 exports.deleteUser = async (req,res)=>{
     try {
-        const {userId} = req.params
-        const user = await userModel.findById(userId)
+        const {id} = req.params
+        const user = await userModel.findById(id)
         if(!user){
             return res.status(404).json({
                 message: `User not found`
             })
         }
 
-        const deletedUser = await userModel.findByIdAndDelete(userId)
+        const deletedUser = await userModel.findByIdAndDelete(id)
       res.status(200).json({
         message: `User deleted successfully`
       })
