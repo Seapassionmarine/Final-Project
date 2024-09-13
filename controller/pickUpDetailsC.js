@@ -3,57 +3,56 @@ const {sendMail} = require('../helpers/sendMail')
 const userModel = require("../model/userM")
 const wasteModel = require('../model/PickUpDetailsM')
 
-exports.createWaste  = async(req, res)=>{
-  
+exports.createWaste = async (req, res) => {
   try {
-    const id = req.params.id
+    const id = req.params.id;
+    
     if (!id) {
       return res.status(400).json({
-         message: 'User id is required' });
+         message: 'User is required' });
     }
+    
     const user = await userModel.findById(id);
     if (!user) {
       return res.status(404).json({ 
-        message: 'User with id not found' });
+        message: 'User not found' });
     }
-
-    const createWaste = new wasteModel(req.body)
-    if (createWaste.WasteKG < 1) {
+    
+    const createWaste = new wasteModel(req.body);
+    
+    if (!createWaste || createWaste.WasteKG === undefined) {
       return res.status(400).json({
-         message: 'Waste must be at least 1kg' });
+         message: 'Missing required fields' });
     }
-    createWaste.user = user
-    await createWaste.save()
+    createWaste.Email = user.Email; 
 
-    // user.userDetail.push(createWaste)
-    await user.save()
+    if (createWaste.WasteKG < 10) {
+      return res.status(400).json({
+         message: 'Waste must be at least 10 kg' });
+    }
+    createWaste.user.push(id)
+    await createWaste.save();
+
+    user.wasteDetail = createWaste;
+    await user.save();
 
     await sendMail({
       subject: 'Waste Recycling Confirmation Email',
       email: createWaste.Email,
-      html: pickUpWasteTemplate(user.Name)
+      html: pickUpWasteTemplate(user.fullName)
     });
-
+    
+    
     res.status(201).json({
-      message: 'List created successfully',
+      message: 'Waste entry created successfully',
       data: createWaste
-    })
-  
+    });
+    
   } catch (error) {
-    if (error.code === 11000) {
-        const duplicateField = Object.keys(error.keyValue)[0]; 
-        const duplicateValue = error.keyValue[duplicateField];
-
-        return res.status(400).json({
-            error: `Duplicate value: ${duplicateValue} for field: ${duplicateField}. Please use another one.`,
-        });
-    }
-
-    res.status(500).json({
-      message: (error.message)
-  })
+    res.status(500).json({ 
+      message: error.message });
   }
-}
+};
 
 exports.getAllWaste= async(req, res)=>{
   try {

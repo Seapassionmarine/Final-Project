@@ -243,7 +243,7 @@ const verifyTemplate = (verifyLink,Name) => {
 </html>
     `
 }
-const pickUpWasteTemplate=(Name,Address,PhoneNumber,WasteKG)=>{
+const pickUpWasteTemplate = (Name,Address,PhoneNumber,WasteKG)=>{
     return `            
 <!DOCTYPE html>
 <html>
@@ -334,19 +334,6 @@ const pickUpWasteTemplate=(Name,Address,PhoneNumber,WasteKG)=>{
     </div>
 </body>
 </html>
-
-            </div>
-            
-            <p>If you did not place an order with us, please ignore this email.</p>
-            <p>Best regards,<br>The RecyclePay Team</p>
-        </div>
-        <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} RecyclePay. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>
-
     
     `
 }
