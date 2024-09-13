@@ -26,7 +26,7 @@ exports.signUp = async(req,res)=>{
         
         const user = new userModel({
             Name:Name.trim(),
-            Email:Email.toLowerCase(),
+            Email:Email.toLowerCase().trim(),
             Location,
             Password:hashedPassword,
             PhoneNumber
