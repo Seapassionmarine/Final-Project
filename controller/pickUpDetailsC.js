@@ -5,7 +5,7 @@ const wasteModel = require('../model/PickUpDetailsM')
 
 exports.createWaste = async (req, res) => {
   try {
-    const { id } = req.params;  // Destructure 'id' from req.params
+    const id = req.params.id;  // Destructure 'id' from req.params
 
     // Check if user ID is provided
     if (!id) {
