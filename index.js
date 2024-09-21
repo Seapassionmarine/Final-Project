@@ -19,5 +19,5 @@ app.listen(PORT,()=>{
 })
 
 app.get("/", (req, res) => {
-    res.send("Welcome to RecyclePay!");
+    res.send("Welcome to RecyclePay! 🎉🎉");
   });

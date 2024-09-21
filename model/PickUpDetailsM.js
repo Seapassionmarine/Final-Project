@@ -1,15 +1,7 @@
 const mongoose = require('mongoose')
 
 const PickUpSchema = new mongoose.Schema({
-    Name:{
-        type:String,
-        required:true
-    },
     Address:{
-        type:String,
-        required:true
-    },
-    Email:{
         type:String,
         required:true
     },
@@ -21,9 +13,15 @@ const PickUpSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
-    user:[
+    status:{
+        type:String,
+        enum:['approved','pending','declined'],
+        default:'pending'
+    },
+    userId:[
         {type:mongoose.Schema.Types.ObjectId,
             ref:"user",
+            required:true
         }
     ],
 },{timestamps:true})

@@ -91,36 +91,22 @@ exports.logInValidator = async (req, res, next) => {
 }
 
 exports.PickUpDetailsValidator = async (req, res, next) => {
-  const Schema = joiValidation.object({
-    Name: joiValidation.string().min(3).required().pattern(new RegExp(/^[^\s].+[^\s]$/)).messages({
-        "any.required": "Name is required.",
-        "string.empty": "Name cannot be empty.",
-        "string.min": "Name must be at least 3 characters long.",
-        "string.pattern.base": "Name cannot start or end with a whitespace.",
-      }),
-
-      Email: joiValidation.string().email().min(7).required().messages({
-        "any.required": "please kindly fill your email address",
-        "string.empty": "email cannot be empty",
-        "string.email":"invalid email format. please enter a valid email address",
-      }),
-  
-      WasteKG: joiValidation.number().required().min(1).max(50).messages({
-      "number.base": "WasteKG must be a number",
-      "number.empty": "WasteKG cannot be empty",
-      "number.min": "WasteKG must be at least 1 kilogram",
-      "number.max": "WasteKG must not exceed 50 kilograms",
-      "any.required": "WasteKG is a required field"
+  const Schema = joiValidation.object({  
+    PhoneNumber: joiValidation.string().pattern(/^\d{11}$/).required().messages({
+      "any.required": "Phone number is required.",
+      "string.empty": "Phone number cannot be empty.",
+      "string.pattern.base": "Phone number must be exactly 11 digits."
     }),
     Address: joiValidation.string().required().pattern(/^[a-zA-Z0-9-,. ]+$/).messages({
       'string.pattern.base': 'Address can contain only alphabetic characters, numbers, spaces, commas, periods, or hyphens.',
       'any.required': 'Address is required.',
       'string.empty': 'Address cannot be empty.'
     }),
-    PhoneNumber: joiValidation.string().pattern(/^\d{11}$/).required().messages({
-      "any.required": "Phone number is required.",
-      "string.empty": "Phone number cannot be empty.",
-      "string.pattern.base": "Phone number must be exactly 11 digits."
+      WasteKG: joiValidation.number().required().min(10).messages({
+      "number.base": "WasteKG must be a number",
+      "number.empty": "WasteKG cannot be empty",
+      "number.min": "WasteKG must be at least 10 kilogram",
+      "any.required": "WasteKG is a required field"
     })
         });
           const { error } = Schema.validate(req.body);

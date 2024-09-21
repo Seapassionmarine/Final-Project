@@ -8,12 +8,12 @@ const userSchema = new mongoose.Schema({
     Email:{
         type:String,
         required:true,
-        unique:true
+        // unique:true
     },
     PhoneNumber:{
         type:String,
         required:true,
-         unique:true
+        //  unique:true
     },
     Password:{
         type:String,
@@ -31,11 +31,10 @@ const userSchema = new mongoose.Schema({
         type:Boolean, 
         default:false 
     },
-    wasteDetail:[
-        {type:mongoose.Schema.Types.ObjectId,
-            ref:"waste",
-        }
-    ],
+    wasteDetail:{
+        type:mongoose.Schema.Types.ObjectId,
+            ref:"waste"
+        },
     blackList:[]
 },{timestamps:true})
 
