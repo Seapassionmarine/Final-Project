@@ -1,5 +1,5 @@
 const express = require('express')
-const { createWaste, deleteWaste, getAllWaste, updateWaste, getUserWasteRecords, wasteHistory, pickWaste, declinedWaste } = require('../controller/pickUpDetailsC')
+const { createWaste, deleteWaste, getAllWaste, updateWaste, getUserWasteRecords, wasteHistory, pickWaste, declinedWaste, getSingleWasteRecord, getUserWasteRecordsByAdmin } = require('../controller/pickUpDetailsC')
 const { authenticate, isAdmin } = require('../middleware/auth copy')  
 const { PickUpDetailsValidator } = require('../middleware/validator')
 
@@ -12,6 +12,8 @@ router.get("/get-all", authenticate, isAdmin, getAllWaste);
 router.delete("/delete-waste/:id", authenticate, isAdmin, deleteWaste);
 router.get("/wasteHistory", authenticate, wasteHistory);
 router.get('/pick-waste/:wasteId', authenticate, isAdmin, pickWaste);
+router.get('/pick-waste/:wasteId', authenticate, getSingleWasteRecord);
+router.get('/pick-waste/:wasteId', authenticate, isAdmin,getUserWasteRecordsByAdmin);
 router.get('/decline-waste/:wasteId', authenticate, isAdmin, declinedWaste);
 
 module.exports = router

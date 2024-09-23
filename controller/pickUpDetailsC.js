@@ -7,6 +7,7 @@ require("dotenv").config();
 exports.createWaste = async (req, res) => {
   try {
     const id = req.user.userId;
+    const { phoneNumber, WasteKG, pickUpAddress } = req.body;
     const user = await userModel.findById(id);
     if (!user) {
       return res.status(404).json({
@@ -14,7 +15,12 @@ exports.createWaste = async (req, res) => {
       });
     }
 
-    const createWaste = new wasteModel(req.body);
+    const createWaste = new  wasteModel({
+      phoneNumber,
+      WasteKG,
+      pickUpAddress,
+      userId: id
+    });
     createWaste.Name = user.Name;
     createWaste.Email = user.Email;
     await createWaste.save();
@@ -25,9 +31,9 @@ exports.createWaste = async (req, res) => {
       });
     }
 
-    createWaste.userId.push(id);
-    user.wasteDetail = createWaste;
-    await user.save();
+    // createWaste.userId.push(id);
+    // user.wasteDetail = createWaste;
+    // await user.save();
 
     await sendMail({
       subject: "Waste Recycling Pending Email",
@@ -36,7 +42,7 @@ exports.createWaste = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: "Waste re created successfully",
+      message: "Waste created successfully",
       data: createWaste,
     });
   } catch (error) {
@@ -53,11 +59,12 @@ exports.getAllWaste = async (req, res) => {
      return res.status(200).json({
         message: "Database currently empty"
       });
-    }
+    }else{
     res.status(200).json({
-      message: "list of all to do in the database",
+      message: `We have ${getAllWaste.length} waste request`,
       data: getAllWaste,
     });
+  }
   } catch (error) {
    return res.status(500).json({
       message: "internal server error" + error.message,
@@ -79,29 +86,7 @@ exports.getUserWasteRecords = async (req, res) => {
       message: error.message,
     });
   }
-};
-
-//DELETE
-exports.deleteWaste = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const deleteWaste = await wasteModel.findByIdAndDelete(id);
-    if (!deleteWaste) {
-    return  res.status(404).json({
-        message: `Waste  with ID: ${id} not found`,
-        data: deleteWaste,
-      });
-    }
-   return res.status(200).json({
-      message: `waste with the ID ${id} deleted successfully`,
-      data: deleteWaste
-    });
-  } catch (error) {
-   return res.status(500).json({
-      message: error.message,
-    });
-  }
-};
+};;
 
 //UPDATE
 exports.updateWaste = async (req, res) => {
@@ -163,6 +148,38 @@ exports.wasteHistory = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "internal server error" + error.message,
+    });
+  }
+};
+exports.getSingleWasteRecord = async (req, res) => {
+  try {
+    const { wasteId } = req.params;
+    const wasteRecord = await wasteModel.findById(wasteId);
+   return res.status(200).json({
+      message: "Fetch waste record successfully",
+      data: wasteRecord,
+    });
+
+  } catch (error) {
+   return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+//to get a user waste by the admin
+exports.getUserWasteRecordsByAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const wasteRecords = await wasteModel.find({ userId: userId });
+   return res.status(200).json({
+      message: "Retrieved waste records successfully",
+      data: wasteRecords,
+    });
+
+  } catch (error) {
+   return res.status(500).json({
+      message: error.message,
     });
   }
 };
@@ -233,3 +250,24 @@ exports.declinedWaste = async (req, res) => {
     });
   }
 };
+//DELETE
+exports.deleteWaste = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deleteWaste = await wasteModel.findByIdAndDelete(id);
+    if (!deleteWaste) {
+    return  res.status(404).json({
+        message: `Waste  with ID: ${id} not found`,
+        data: deleteWaste,
+      });
+    }
+   return res.status(200).json({
+      message: `waste with the ID ${id} deleted successfully`,
+      data: deleteWaste
+    });
+  } catch (error) {
+   return res.status(500).json({
+      message: error.message,
+    });
+  }
+}
